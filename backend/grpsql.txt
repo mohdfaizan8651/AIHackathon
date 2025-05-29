@@ -1,0 +1,88 @@
+             ┌────────────────────┐
+             │     User Query     │
+             └────────┬───────────┘
+                      │
+          ┌───────────▼───────────┐
+          │  Query Understanding  │ ◄────────┐
+          │ (LLM: Intent + NLP)   │          │
+          └──────┬────────┬───────┘          │
+                 │        │                  │
+        ┌────────▼───┐ ┌──▼────────┐         │
+        │ Structured │ │Unstructured│        │
+        │  Query Gen │ │ Prompt Gen │        │
+        └────┬───────┘ └──────┬─────┘        │
+             │                │              │
+     ┌───────▼────────┐ ┌─────▼────────────┐ │
+     │ SQL Database   │ │ Embedding & RAG  │ │
+     │ (PostgreSQL)   │ │ (Policies, Docs) │ │
+     └──────┬─────────┘ └──────┬────────────┘ │
+            │                  │              │
+        ┌───▼──────────────────▼────┐         │
+        │     Result Aggregator    │◄─────────┘
+        └──────┬────────────┬──────┘
+               │            │
+        ┌──────▼─┐      ┌───▼────────┐
+        │   LLM  │      │ Visualizer │
+        │ Reason │      │  (charts,  │
+        │ & Reply│      │ tables...) │
+        └───────┘      └────────────┘
+               │
+        ┌──────▼───────┐
+        │  Final Answer│
+        └──────────────┘
+
+Core Modules
+1. Input Interface
+Web app or API
+
+Users ask queries in natural language
+
+Example: “Show late delivery risk by region last year”
+
+2. LLM Intent Classification
+Classifies input into:
+
+Structured (SQL)
+
+Unstructured (document analysis)
+
+Hybrid (both)
+
+3. SQL Query Generator (for structured data)
+Converts intent to SQL
+
+Uses table schema (orders, customers, products, etc.)
+
+Can use tools like LangChain + SQL agent + PostgreSQL connector
+
+4. Document Retriever (for unstructured)
+Converts docs to embeddings
+
+RAG (Retrieval-Augmented Generation) pipeline with FAISS or Qdrant
+
+Example: policies on reverse logistics, supplier ethics
+
+5. LLM Reasoner
+Combines structured results + document answers
+
+Responds clearly and contextually
+
+Optionally uses chain-of-thought or function calling
+
+6. Result Visualizer
+Generates:
+
+Bullet summaries
+
+Tables, charts, graphs
+
+JSON for APIs
+
+7. Database (PostgreSQL or similar)
+Normalized schema for customers, orders, products, etc.
+
+Time-series and geography-supported
+
+8. Embedding Database
+Stores document vectors (FAISS, Qdrant, Weaviate)
+

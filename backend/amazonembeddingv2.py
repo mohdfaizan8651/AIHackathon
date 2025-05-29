@@ -4,13 +4,16 @@ import time
 import numpy as np
 import faiss
 from dotenv import load_dotenv
+import os
 # Load API Key
 load_dotenv()
 API_KEY = os.getenv("ANTHROPIC_API_KEY")
 API_URL = os.getenv("API_URL")
 
-
+print(API_KEY,API_URL)
 def get_amazon_embedding(text: str) -> list:
+    global API_KEY
+    global API_URL
     payload = {
         "api_key": API_KEY,
         "prompt": text,
@@ -44,9 +47,12 @@ print(f"🔎 Loaded {len(vectors)} embeddings into FAISS index.")
 # Define search function
 def search_query(query: str, k=10):
     query_embedding = get_amazon_embedding(query)
+    text=''
     if not query_embedding:
         print("❌ Failed to get query embedding.")
         return
     D, I = index.search(np.array([query_embedding]).astype("float32"), k=k)
     for idx in I[0]:
-        print(texts[idx])
+        # print(texts[idx])
+        text+=str(texts[idx])
+    return text

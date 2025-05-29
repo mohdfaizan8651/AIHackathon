@@ -9,6 +9,7 @@ import jsonify
 from  amazonembeddingv2 import search_query
 import re
 from fassi import cover
+
 # Load API Key
 load_dotenv()
 api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -88,22 +89,29 @@ def ask_question(query:Query):
 
     elif intent_== "Document Data":
         answer=intent_q.split('\n')[2].split(str(intent_.split()[0])+' Question: ')[1].strip()
+
         return json.dumps({"answer":structured_ans(answer,search_query(answer))})
     elif intent_ == "Both":
 
         Document=intent_q.split('\n')[2].split('Document Question: ')[1].strip()
         
-        text = search_query(Document)
+        text = search_query(Document.strip())
         answer = hybred(query,text)
-        # return extract_sql_from_response(answer)
-        cursor.execute(extract_sql_from_response(answer))
+        if 'oonnoonn'  in answer: 
+            return json.dumps({"answer":structured_ans(query,str(extract_explanation(answer)))})
+        # print(answer.split('***'))
+        # return answer.split('***')
+        cursor.execute(extract_sql_from_response(answer).split('***')[1])
         explain_=extract_explanation(answer)
         rows = cursor.fetchall()
+        if rows ==[] or rows ==None:
+            return json.dumps({"answer":structured_ans(query,str(extract_explanation(answer)))})
+
         solve = ''
         for row in rows:
             solve+=str(row)
         return json.dumps({"answer":structured_ans(query,str(solve) + explain_)})
-
+       
     else:
         return json.dumps({"answer": intent_q.split('\n')[2].split('Unrelated Question: ')[1].strip()})
       
